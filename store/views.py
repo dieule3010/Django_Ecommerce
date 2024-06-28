@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from .models import Product
+from .models import Category
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -7,6 +8,21 @@ from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm
 from django import forms
 
+from django.shortcuts import redirect
+
+def category(request,foo):
+  foo = foo.replace('-', '')
+  try:
+    category = Category.objects.get(name=foo)
+    products = Product.objects.filter(category=category)
+    return render(request,'category.html', {'products: product'})
+  except:
+    messages.success(request,("That Category doesn't exist"))
+    return redirect('home')
+
+def product(request,pk):
+  product = Product.objects.get(id=pk)
+  return render(request, 'product.html',{'product': product})
 
 def home(request):
   products = Product.objects.all()
