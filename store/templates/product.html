@@ -22,7 +22,7 @@
                           <!-- <img class="card-img-top" src="{{product.image.url}}" alt="..." /> -->
                           <!-- Product details-->
                           <div class="card-body p-4">
-                              <div class="text-center">
+                              < class="text-center">
                                   <!-- Product name-->
                                   <!-- <h5 class="fw-bolder">Fancy Product {{ product.name }}</h5> -->
                                   <!--Sale-->
@@ -38,8 +38,11 @@
                                   {{ product.sale_price}}
               {% else %}
             ${{ product.price }}
+            <br/> ID: {{ product.id }}
             {% endif %}
+            <br></br>
             <a href="{%url 'home'%}" class="btn btn-secondary">Home</a>
+            <button type ="button" value = "{{ product.id }}"class="btn btn-secondary" id="add-cart">Add To Cart</button>
           </center>
           </div>
         </div>
@@ -48,4 +51,25 @@
 </div>
 
 <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br>
+<script>
+  $(document).on('click', '#add-cart', function(e){
+    e.preventDefault(); // Ngăn chặn hành động mặc định của sự kiện click
+
+    $.ajax({
+      type: 'POST', // Phương thức gửi yêu cầu là POST
+      url: "{% url 'cart_add' %}", // URL mà yêu cầu sẽ được gửi đến (đây là một biến template trong Django)
+      data: {
+        product_id: $('#add-cart').val(), // Dữ liệu được gửi đi, ở đây là giá trị của phần tử có id 'add-cart'
+        csrfmiddlewaretoken: '{{ csrf_token }}', // Token CSRF để bảo mật (được lấy từ template Django)
+        action: 'post' // Thông tin thêm để chỉ định hành động là 'post'
+    },
+        success: function(json){ // Hàm sẽ được gọi khi yêu cầu thành công
+            console.log(json); // In ra console dữ liệu JSON trả về
+        },
+        error: function(xhr, errmsg, err){ // Hàm sẽ được gọi khi có lỗi xảy ra
+        }
+    });
+});
+
+</script>
 {% endblock %}
