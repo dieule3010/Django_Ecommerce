@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm
 from django import forms
-
 from django.shortcuts import redirect
 
 def category(request,foo):
@@ -31,20 +30,33 @@ def home(request):
 def about(request):
   return render(request, 'about.html',{})
 
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from django.shortcuts import render, redirect
+
 def login_user(request):
-  if request.method == "POST":
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(request, username= username,password = password)
-    if user is not None:
-      login(request, user)
-      messages.success(request, ("You Have Been Log In"))
-      return redirect('home')
+    if request.method == "POST":
+        username = request.POST.get('username', None)
+        password = request.POST.get('password', None)
+
+        if username and password:
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                if user.is_staff:
+                    login(request, user)
+                    messages.success(request, "You have been logged in")
+                    return redirect('home')
+                else:
+                    messages.error(request, "You do not have the necessary permissions to log in")
+            else:
+                messages.error(request, "Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive.")
+        else:
+            messages.error(request, "Username and password are required")
+
+        return redirect('login')
     else:
-      messages.success(request, ("There was an error, please try again"))
-      return redirect('login')
-  else:
-    return render(request, 'login.html',{})
+        return render(request, 'login.html', {})
+
 
 def logout_user(request):
   logout(request)
