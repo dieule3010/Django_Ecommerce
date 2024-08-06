@@ -6,14 +6,17 @@ class Cart:
         if 'session_key' not in request.session:
             cart = self.session['session_key'] = {}
         self.cart = cart
-    def add(self, product):
+    def add(self, product,quantity):
         product_id = str(product.id)
+        product_qty = str(quantity)
+
 
     # Logic
         if product_id in self.cart:
             pass
         else:
-            self.cart[product_id] = {'price': str(product.price)}
+            # self.cart[product_id] = {'price': str(product.price)}
+            self.cart[product_id] = int(product_qty)
         self.session.modified = True
     def __len__(self):
         return len(self.cart)
@@ -23,3 +26,6 @@ class Cart:
         #use ids to look up product in database model
         products = Product.objects.filter(id__in=product_ids)
         return products
+    def get_quants(self):
+        quantities =self.cart
+        return quantities
