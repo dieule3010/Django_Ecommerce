@@ -30,13 +30,7 @@ def home(request):
 def about(request):
   return render(request, 'about.html',{})
 
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
-from django.shortcuts import render, redirect
 
-from django.contrib import messages
-from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
 
 def login_user(request):
     if request.method == "POST":
@@ -92,4 +86,4 @@ def register_user(request):
     else:
         form = SignUpForm()
 
-    return render(request, 'register.html', {'form': form})     
+    return render(request, 'register.html', {'form': form})
