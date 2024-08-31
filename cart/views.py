@@ -5,7 +5,7 @@ from django.http import JsonResponse
 
 # Create your views here.
 def cart_summary(request):
-  cart = Cart(request)
+  cart = Cart(request) # Lấy giỏ hàng từ session hiện tại
   cart_products = cart.get_prods
   quantities = cart.get_quants
   return render(request, "cart_summary.html",{'cart_products':cart_products, "quantities":quantities})

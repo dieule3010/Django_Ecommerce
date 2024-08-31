@@ -5,7 +5,7 @@ class Category(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
-      return self.name
+      return self.name #Trả về tên của danh mục khi in ra
     class Meta:
       #to right grammar
       verbose_name_plural = 'categories'

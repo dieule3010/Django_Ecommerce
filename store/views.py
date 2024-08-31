@@ -1,25 +1,25 @@
 from django.shortcuts import render
 from .models import Product
 from .models import Category
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout #Các hàm để quản lý xác thực người dùng (đăng nhập, đăng xuất, xác thực người dùng).
+from django.contrib import messages #Để gửi thông báo cho người dùng.
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm
 from django import forms
-from django.shortcuts import redirect
+from django.shortcuts import redirect #redirect: Hàm để chuyển hướng người dùng đến một URL khác.
 
 def category(request,foo):
-  foo = foo.replace('-', '')
+  foo = foo.replace('-', '') #Loại bỏ dấu - trong tên danh mục để chuẩn hóa giá trị.
   try:
-    category = Category.objects.get(name=foo)
-    products = Product.objects.filter(category=category)
-    return render(request,'category.html', {'products: product'})
+    category = Category.objects.get(name=foo) #Tìm đối tượng Category với tên tương ứng. Nếu không tìm thấy, sẽ gây lỗi.
+    products = Product.objects.filter(category=category) # Lọc các sản phẩm thuộc danh mục tìm được.
+    return render(request,'category.html', {'products': products})
   except:
     messages.success(request,("That Category doesn't exist"))
     return redirect('home')
 
-def product(request,pk):
+def product(request,pk): #pk: Primary key của sản phẩm cần lấy
   product = Product.objects.get(id=pk)
   return render(request, 'product.html',{'product': product})
 
@@ -71,7 +71,7 @@ def register_user(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()  # Save the form to create the user
-            username = form.cleaned_data['username']
+            username = form.cleaned_data['username'] #Lấy tên người dùng từ dữ liệu đã được làm sạch.
             password = form.cleaned_data['password1']
 
             # Log in the user after registration
