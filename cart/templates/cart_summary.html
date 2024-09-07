@@ -57,7 +57,7 @@
                       <select class="form-select form-select-sm" id="select{{product.id}}">
                         {% for key, value in quantities.items %}
                           {% if key == product.id|slugify %}
-                            <option selected>{{value}}
+                            <option selected>{{ value }}
                               {% endif %}
                         {% endfor %}
                             </option>
@@ -90,14 +90,14 @@
 <script>
   $(document).on('click', '.update-cart', function(e){
     e.preventDefault(); // Ngăn chặn hành động mặc định của sự kiện click
-    // grab the product ud
+    // grab the product id
     var productid = $(this).data('index');
     $.ajax({
       type: 'POST', // Phương thức gửi yêu cầu là POST
       url: "{% url 'cart_update' %}", // URL mà yêu cầu sẽ được gửi đến (đây là một biến template trong Django)
       data: {
         product_id: $(this).data('index'), // Dữ liệu được gửi đi, ở đây là giá trị của phần tử có id 'add-cart'
-        product_qty: $('#select'+ productid + 'option:selected').text(),
+        product_qty: $('#select'+ productid + ' option:selected').text(),
         csrfmiddlewaretoken: '{{ csrf_token }}', // Token CSRF để bảo mật (được lấy từ template Django)
         action: 'post' // Thông tin thêm để chỉ định hành động là 'post'
     },

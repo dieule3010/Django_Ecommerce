@@ -42,13 +42,36 @@ def cart_delete(request):
   pass
 
 
+# def cart_update(request):
+#   cart = Cart(request)
+#   if request.POST.get('action') == 'post':
+#         # Get stuff
+#         product_id = int(request.POST.get('product_id'))
+#         product_qty = int(request.POST.get('product_qty'))
+#         cart.update(product=product_id, quantity = product_qty)
+#         response = JsonResponse({'qty': product_qty})
+#         return response
+#         # return redirect('cart_summary')
 def cart_update(request):
-  cart = Cart(request)
-  if request.POST.get('action') == 'post':
-        # Get stuff
-        product_id = int(request.POST.get('product_id'))
-        product_qty = int(request.POST.get('product_qty'))
-        cart.update(product=product_id, quantity = product_qty)
-        response = JsonResponse({'qty': product_qty})
-        return response
-        # return redirect('cart_summary')
+    cart = Cart(request)
+    if request.POST.get('action') == 'post':
+        # Get product_id and product_qty
+        product_id = request.POST.get('product_id')
+        product_qty = request.POST.get('product_qty')
+
+        # Kiểm tra product_id và product_qty có giá trị hợp lệ không
+        if product_id and product_qty and product_qty.isdigit():
+            product_id = int(product_id)
+            product_qty = int(product_qty)
+
+            # Cập nhật giỏ hàng
+            cart.update(product=product_id, quantity=product_qty)
+
+            # Trả về phản hồi JSON
+            response = JsonResponse({'qty': product_qty})
+            return response
+        else:
+            # Trả về phản hồi lỗi nếu giá trị không hợp lệ
+            return JsonResponse({'error': 'Invalid product_id or product_qty'}, status=400)
+
+    # Nếu không phải yêu cầu POST với action 'post', có thể xử lý khác nếu cần
