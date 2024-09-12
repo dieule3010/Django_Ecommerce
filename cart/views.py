@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from .cart import Cart
 from store.models import Product
 from django.http import JsonResponse
+from django.contrib import messages #Để gửi thông báo cho người dùng.
+
 
 # Create your views here.
 def cart_summary(request):
@@ -34,6 +36,7 @@ def cart_add(request):
         cart_quantity = cart.__len__()
         #response = JsonResponse({'Product Name: ': product.name})
         response = JsonResponse({'qty ': cart_quantity})
+        messages.success(request,("Product Added To Cart..."))
 
         return response
 
@@ -47,6 +50,8 @@ def cart_delete(request):
         #Call delete function in Cart
       cart.delete(product = product_id)
       response = JsonResponse({'product': product_id})
+      messages.success(request,("Item Deleted From Shopping Cart..."))
+
       return response
 
 # def cart_update(request):
@@ -76,6 +81,8 @@ def cart_update(request):
 
             # Trả về phản hồi JSON
             response = JsonResponse({'qty': product_qty})
+            messages.success(request,("Product Updated To Cart..."))
+
             return response
         else:
             # Trả về phản hồi lỗi nếu giá trị không hợp lệ

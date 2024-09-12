@@ -108,8 +108,8 @@
     },
         success: function(json){ // Hàm sẽ được gọi khi yêu cầu thành công
             // console.log(json) // In ra console dữ liệu JSON trả về
-            // document.getElementById("cart_quantity").
-            // textContent = json.qty;
+            document.getElementById("cart_quantity").
+            textContent = json.qty;
             location.reload();
           },
         error: function(xhr, errmsg, err){ // Hàm sẽ được gọi khi có lỗi xảy ra
