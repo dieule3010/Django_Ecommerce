@@ -18,6 +18,26 @@ class Cart:
         self.session.modified = True # Đánh dấu session là đã thay đổi để đảm bảo rằng dữ liệu giỏ hàng mới sẽ được lưu lại.
     def __len__(self):
         return len(self.cart) #Trả về số lượng sản phẩm trong giỏ hàng.
+    def cart_total(self):
+        #get product_ids
+        product_ids = self.cart.keys()
+        #look up those keys in our products database models
+        products = Product.objects.filter(id__in=product_ids)
+        #get quantities
+        quantities = self.cart
+        #start counting at 0
+        total = 0
+        for key, value in quantities.items():
+            #convert kew strings into int so we can do math
+            key = int(key)
+            for product in products:
+                if product.id == key:
+                    if product.is_sale:
+                        total = total + (product.sale_price * value)
+                    else:
+                        total = total + (product.price * value)
+
+        return total
     def get_prods(self):
         #get ids from cart
         product_ids = self.cart.keys() #Lấy tất cả các ID sản phẩm từ giỏ hàng.
