@@ -28,10 +28,15 @@ class Cart:
         quantities =self.cart
         return quantities
     def update(self, product, quantity):
-        product_id = str(product)
-        product_qty = int(quantity)
-        ourcart = self.cart
-        ourcart[product_id] = product_qty
-        self.session.modified = True
-        thing = self.cart
-        return thing
+        product_id = str(product) # Chuyển đổi ID sản phẩm thành chuỗi
+        product_qty = int(quantity) # Đảm bảo số lượng là kiểu số nguyên
+        ourcart = self.cart# Lấy giỏ hàng hiện tại
+        ourcart[product_id] = product_qty# Cập nhật giỏ hàng với số lượng mới của sản phẩm
+        self.session.modified = True# Đánh dấu session đã được sửa đổi để lưu thay đổi
+        thing = self.cart# Tùy chọn lưu giỏ hàng cập nhật vào 'thing'
+        return thing # Trả về giỏ hàng đã cập nhật
+    def delete(self, product):
+        product_id = str(product)# Chuyển đổi ID sản phẩm thành chuỗi
+        if product_id in self.cart:# Kiểm tra xem sản phẩm có tồn tại trong giỏ hàng không
+            del self.cart[product_id]# Xóa sản phẩm khỏi giỏ hàng
+        self.session.modified = True# Đánh dấu session đã được sửa đổi để lưu thay đổi

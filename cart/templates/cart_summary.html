@@ -73,6 +73,8 @@
                       <br></br>
                       <a href="{%url 'home'%}" class="btn btn-secondary">Home</a>
                       <button type = "button" data-index="{{product.id}}" class = "btn btn-secondary update-cart">Update</button>
+                      <button type = "button" data-index="{{product.id}}" class = "btn btn-danger delete-product">Remove</button>
+
                     </center>
                     </div>
                   </div>
@@ -88,6 +90,7 @@
 
 
 <script>
+  //Update Cart
   $(document).on('click', '.update-cart', function(e){
     e.preventDefault(); // Ngăn chặn hành động mặc định của sự kiện click
     // grab the product id
@@ -106,6 +109,30 @@
             // document.getElementById("cart_quantity").
             // textContent = json.qty;
             location.reload();
+          },
+        error: function(xhr, errmsg, err){ // Hàm sẽ được gọi khi có lỗi xảy ra
+        }
+    });
+});
+
+//Delete Item From Cart
+$(document).on('click', '.delete-product', function(e){
+    e.preventDefault(); // Ngăn chặn hành động mặc định của sự kiện click
+    // grab the product id
+    //var productid = $(this).data('index');
+    $.ajax({
+      type: 'POST', // Phương thức gửi yêu cầu là POST
+      url: "{% url 'cart_delete' %}", // URL mà yêu cầu sẽ được gửi đến (đây là một biến template trong Django)
+      data: {
+        product_id: $(this).data('index'), // Gửi ID sản phẩm
+        csrfmiddlewaretoken: '{{ csrf_token }}', // Token CSRF để bảo mật (được lấy từ template Django)
+        action: 'post' // Thông tin thêm để chỉ định hành động là 'post'
+    },
+        success: function(json){ // Hàm sẽ được gọi khi yêu cầu thành công
+            // console.log(json) // In ra console dữ liệu JSON trả về
+            // document.getElementById("cart_quantity").
+            // textContent = json.qty;
+            location.reload();// Tải lại trang để cập nhật giỏ hàng
           },
         error: function(xhr, errmsg, err){ // Hàm sẽ được gọi khi có lỗi xảy ra
         }
