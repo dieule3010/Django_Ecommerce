@@ -1,25 +1,61 @@
 from django.shortcuts import render
 from .models import Product
 from .models import Category
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout #Các hàm để quản lý xác thực người dùng (đăng nhập, đăng xuất, xác thực người dùng).
+from django.contrib import messages #Để gửi thông báo cho người dùng.
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .forms import SignUpForm
+from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm
 from django import forms
-from django.shortcuts import redirect
+from django.shortcuts import redirect #redirect: Hàm để chuyển hướng người dùng đến một URL khác.
+
+def update_password(request):
+    if request.user.is_authenticated: #kiểm tra xem người dùng hiện tại đã đăng nhập chưa. Nếu chưa đăng nhập, người dùng sẽ không được phép truy cập trang cập nhật mật khẩu và sẽ được chuyển hướng về trang chính (home).
+        current_user = request.user
+        if request.method == 'POST':#Kiểm tra xem yêu cầu HTTP là POST hay không. Yêu cầu POST là khi người dùng gửi dữ liệu form, trong trường hợp này là thông tin thay đổi mật khẩu.
+            form = ChangePasswordForm(current_user, request.POST) #ChangePasswordForm(current_user, request.POST) khởi tạo form với dữ liệu từ yêu cầu POST. current_user được truyền vào để liên kết với người dùng hiện tại.
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Your password has been changed.")
+                return redirect('login')
+            else:
+                for error in form.errors.values():  # Sửa lại cách lấy lỗi từ form
+                    messages.error(request, error)
+        else:
+            form = ChangePasswordForm(current_user) #Nếu yêu cầu không phải là POST (thường là GET), form sẽ được khởi tạo với đối tượng người dùng hiện tại mà không có dữ liệu POST. Sau đó, form sẽ được gửi đến template để hiển thị.
+        return render(request, "update_password.html", {'form': form})
+    else:
+        messages.error(request, "You must be logged in to access this page.")
+        return redirect('home')
+
+
+def update_user(request):
+  if request.user.is_authenticated:
+      current_user = User.objects.get(id = request.user.id)
+      user_form = UpdateUserForm(request.POST or None, instance = current_user)
+      if user_form.is_valid():
+         user_form.save()
+         login(request, current_user)
+         messages.success(request, "User Has Been Updated!!")
+         return redirect('home')
+      return render(request, 'update_user.html', {'user_form' : user_form})
+  else:
+         messages.success(request, "You Must Be Logged In to Access That Page!!")
+         return redirect('home')
+
+  return render(request, 'update_user.html', {})
 
 def category(request,foo):
-  foo = foo.replace('-', '')
+  foo = foo.replace('-', '') #Loại bỏ dấu - trong tên danh mục để chuẩn hóa giá trị.
   try:
-    category = Category.objects.get(name=foo)
-    products = Product.objects.filter(category=category)
-    return render(request,'category.html', {'products: product'})
+    category = Category.objects.get(name=foo) #Tìm đối tượng Category với tên tương ứng. Nếu không tìm thấy, sẽ gây lỗi.
+    products = Product.objects.filter(category=category) # Lọc các sản phẩm thuộc danh mục tìm được.
+    return render(request,'category.html', {'products': products})
   except:
     messages.success(request,("That Category doesn't exist"))
     return redirect('home')
 
-def product(request,pk):
+def product(request,pk): #pk: Primary key của sản phẩm cần lấy
   product = Product.objects.get(id=pk)
   return render(request, 'product.html',{'product': product})
 
@@ -71,7 +107,7 @@ def register_user(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()  # Save the form to create the user
-            username = form.cleaned_data['username']
+            username = form.cleaned_data['username'] #Lấy tên người dùng từ dữ liệu đã được làm sạch.
             password = form.cleaned_data['password1']
 
             # Log in the user after registration
