@@ -1,14 +1,48 @@
 from django.shortcuts import render
 from .models import Product
 from .models import Category
+from .models import Profile
 from django.contrib.auth import authenticate, login, logout #Các hàm để quản lý xác thực người dùng (đăng nhập, đăng xuất, xác thực người dùng).
 from django.contrib import messages #Để gửi thông báo cho người dùng.
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm
+from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm
 from django import forms
 from django.shortcuts import redirect #redirect: Hàm để chuyển hướng người dùng đến một URL khác.
+from django.db.models import Q
+def search(request):
+    # Check if the form was submitted via POST
+    if request.method == "POST":
+        # Retrieve the searched value from the form
+        searched = request.POST.get('searched', '')
+        searched = Product.objects.filter(Q(name__icontains=searched) | Q(description__icontains = search))
+        if not searched:
+            messages.success(request, "That product doesn't exist!!")
+            return render(request, 'search.html', {})
+        else:
 
+        # Render the search results or whatever is needed
+            return render(request, 'search.html', {'searched': searched})
+
+    else:
+        # Render the search form when it's not a POST request
+        return render(request, 'search.html', {})
+
+def update_info(request):
+    if request.user.is_authenticated:
+      current_user = Profile.objects.get(user__id = request.user.id)
+      form = UserInfoForm(request.POST or None, instance = current_user)
+      if form.is_valid():
+         form.save()
+         login(request, current_user)
+         messages.success(request, "Your Info Has Been Updated!!")
+         return redirect('home')
+      return render(request, 'update_info.html', {'form' : form})
+    else:
+         messages.success(request, "You Must Be Logged In to Access That Page!!")
+         return redirect('home')
+
+    return render(request, 'update_info.html', {})
 def update_password(request):
     if request.user.is_authenticated: #kiểm tra xem người dùng hiện tại đã đăng nhập chưa. Nếu chưa đăng nhập, người dùng sẽ không được phép truy cập trang cập nhật mật khẩu và sẽ được chuyển hướng về trang chính (home).
         current_user = request.user
@@ -115,7 +149,7 @@ def register_user(request):
             login(request, user)
 
             messages.success(request, "You have registered successfully. Welcome!")
-            return redirect('home')
+            return redirect('update_user')
         else:
             messages.error(request, "There was a problem with registration.")
             return redirect('register')  # Redirect back to registration page if form is invalid
