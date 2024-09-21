@@ -15,18 +15,19 @@ class Cart:
         product_qty = int(quantity)  # Chuyển quantity thành số nguyên
 
         if product_id in self.cart:
-            self.cart[product_id] += product_qty  # Cập nhật số lượng nếu sản phẩm đã có trong giỏ
+            pass #  # Cập nhật số lượng nếu sản phẩm đã có trong giỏ
         else:
-            self.cart[product_id] = product_qty  # Thêm sản phẩm mới vào giỏ
+            self.cart[product_id] = int(product_qty)  # Thêm sản phẩm mới vào giỏ
 
         self.session.modified = True
         if self.request.user.is_authenticated:
             current_user = Profile.objects.filter(user__id=self.request.user.id)
-            carty = str(self.cart)
+            carty = str(self.cart) # chuyen sang dang chuoi
             carty = carty.replace("\'", "\"")
             current_user.update(old_cart=str(carty))
     def __len__(self):
-        return sum(self.cart.values())  # Số lượng tổng các sản phẩm trong giỏ
+        return sum(self.cart.values())
+
 
     def get_prods(self):
         product_ids = self.cart.keys()  # Lấy tất cả ID sản phẩm từ giỏ
