@@ -3,16 +3,17 @@ from django.contrib.auth.models import User
 
 class ShippingAddress(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, null= True, blank=True)
-  full_name = models.CharField(max_length=255)
-  email = models.CharField(max_length=255)
-  address1 = models.CharField(max_length=200, blank=True)
-  address2 = models.CharField(max_length=200, blank=True)
-  city = models.CharField(max_length=200, blank=True)
-  state = models.CharField(max_length=200, null=True, blank=True)
-  zipcode = models.CharField(max_length=200, blank=True)
-  country = models.CharField(max_length=200, blank=True)
+  shipping_full_name = models.CharField(max_length=255)
+  shipping_email = models.CharField(max_length=255)
+  shipping_address1 = models.CharField(max_length=200, blank=True)
+  shipping_address2 = models.CharField(max_length=200, blank=True)
+  shipping_city = models.CharField(max_length=200, blank=True)
+  shipping_state = models.CharField(max_length=200, null=True, blank=True)
+  shipping_zipcode = models.CharField(max_length=200, blank=True)
+  shipping_country = models.CharField(max_length=200, blank=True)
 
   class Meta:
+      #Điều này đảm bảo rằng khi Django hiển thị tên của mô hình này dưới dạng số nhiều (plural), nó sẽ dùng "Shipping Address" thay vì mặc định thêm chữ "es"
       verbose_name_plural = "Shipping Address"
   def __str__(self):
     return f'Shipping Address - {str(self.id)}'

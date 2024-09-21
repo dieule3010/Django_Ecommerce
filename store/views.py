@@ -8,8 +8,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm
 from django import forms
+from payment.forms import ShippingForm
+from payment.models import ShippingAddress
 from django.shortcuts import redirect #redirect: Hàm để chuyển hướng người dùng đến một URL khác.
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 def search(request):
     # Check if the form was submitted via POST
     if request.method == "POST":
@@ -30,19 +33,23 @@ def search(request):
 
 def update_info(request):
     if request.user.is_authenticated:
-      current_user = Profile.objects.get(user__id = request.user.id)
-      form = UserInfoForm(request.POST or None, instance = current_user)
-      if form.is_valid():
-         form.save()
-         login(request, current_user)
-         messages.success(request, "Your Info Has Been Updated!!")
-         return redirect('home')
-      return render(request, 'update_info.html', {'form' : form})
-    else:
-         messages.success(request, "You Must Be Logged In to Access That Page!!")
-         return redirect('home')
+        current_user = Profile.objects.get(user__id=request.user.id)
+        shipping_user = get_object_or_404(ShippingAddress, user=request.user)  # Adjust the field if necessary
+        form = UserInfoForm(request.POST or None, instance=current_user)
+        shipping_form = ShippingForm(request.POST or None, instance=shipping_user)
 
-    return render(request, 'update_info.html', {})
+        if form.is_valid() or shipping_form.is_valid():
+            form.save()
+            shipping_form.save()
+            login(request, current_user)
+            messages.success(request, "Your Info Has Been Updated!!")
+            return redirect('home')
+
+        return render(request, 'update_info.html', {'form': form, 'shipping_form': shipping_form})
+
+    else:
+        messages.success(request, "You Must Be Logged In to Access That Page!!")
+        return redirect('home')
 def update_password(request):
     if request.user.is_authenticated: #kiểm tra xem người dùng hiện tại đã đăng nhập chưa. Nếu chưa đăng nhập, người dùng sẽ không được phép truy cập trang cập nhật mật khẩu và sẽ được chuyển hướng về trang chính (home).
         current_user = request.user
