@@ -16,7 +16,7 @@ from django.shortcuts import get_object_or_404
 def search(request):
     # Check if the form was submitted via POST
     if request.method == "POST":
-        # Retrieve the searched value from the form
+        # Lấy giá trị từ trường tìm kiếm.
         searched = request.POST.get('searched', '')
         searched = Product.objects.filter(Q(name__icontains=searched) | Q(description__icontains = search))
         if not searched:
@@ -33,23 +33,27 @@ def search(request):
 
 def update_info(request):
     if request.user.is_authenticated:
-        current_user = Profile.objects.get(user__id=request.user.id)
-        shipping_user = get_object_or_404(ShippingAddress, user=request.user)  # Adjust the field if necessary
+        current_user = Profile.objects.get(user=request.user)
+        shipping_user = get_object_or_404(ShippingAddress, user=request.user)
+        # tạo biểu mẫu
         form = UserInfoForm(request.POST or None, instance=current_user)
         shipping_form = ShippingForm(request.POST or None, instance=shipping_user)
 
-        if form.is_valid() or shipping_form.is_valid():
-            form.save()
-            shipping_form.save()
-            login(request, current_user)
-            messages.success(request, "Your Info Has Been Updated!!")
-            return redirect('home')
+        if request.method == 'POST':
+            # nếu 2 biểu mẫu hợp lệ thì tiến hành lưu dữ liệu
+            if form.is_valid() and shipping_form.is_valid():
+                form.save()
+                shipping_form.save()
+                messages.success(request, "Your Info Has Been Updated!")
+                return redirect('home')
+            else:
+                messages.error(request, "Please correct the errors below.")
 
         return render(request, 'update_info.html', {'form': form, 'shipping_form': shipping_form})
-
     else:
-        messages.success(request, "You Must Be Logged In to Access That Page!!")
+        messages.error(request, "You Must Be Logged In to Access That Page!")
         return redirect('home')
+
 def update_password(request):
     if request.user.is_authenticated: #kiểm tra xem người dùng hiện tại đã đăng nhập chưa. Nếu chưa đăng nhập, người dùng sẽ không được phép truy cập trang cập nhật mật khẩu và sẽ được chuyển hướng về trang chính (home).
         current_user = request.user

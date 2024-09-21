@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
 class Profile(models.Model):
+    #Tạo mối quan hệ một-một với model User. Khi người dùng bị xóa, profile cũng sẽ bị xóa.
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     date_modified = models.DateTimeField(auto_now=True)
     phone = models.CharField(max_length=20, blank=True)
