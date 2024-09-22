@@ -4,8 +4,8 @@
         <header class="bg-dark py-5">
             <div class="container px-4 px-lg-5 my-5">
                 <div class="text-center text-white">
-                    <h1 class="display-4 fw-bolder">Billing Info</h1>
-                    <p class="lead fw-normal text-white-50 mb-0">Enter Your Payment Info</p>
+                    <h1 class="display-4 fw-bolder">Processing Oder...</h1>
+                    <p class="lead fw-normal text-white-50 mb-0">This Is Temporary</p>
                 </div>
             </div>
         </header>
@@ -65,8 +65,8 @@
                 Billing Info
               </div>
               <div class="card-body">
-                <form method="POST" action="{% url 'process_order'%}">
-                  {% csrf_token %}
+                <form method="POST" action="{% url 'process_oder'%}">
+                  {% crsf_token %}
                 {{billing_form.as_p}}
 
               </br>
