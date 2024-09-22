@@ -6,6 +6,7 @@ from payment.models import ShippingAddress, Order, OrderItem
 from payment.forms import ShippingForm, PaymentForm
 from django.contrib.auth.models import User
 from django.contrib import messages
+from store.models import Product
 
 def process_order(request):
     if request.POST:
@@ -20,6 +21,7 @@ def process_order(request):
       email = my_shipping['shipping_email']
       shipping_address = f"{my_shipping['shipping_address1']}\n{my_shipping['shipping_address2']}\n{my_shipping['shipping_city']}\n{my_shipping['shipping_state']}\n{my_shipping['shipping_zipcode']}\n{my_shipping['shipping_country']}\n"
       amount_paid = totals
+      #Nếu người dùng đã đăng nhập (request.user.is_authenticated), đơn hàng sẽ được tạo
       if request.user.is_authenticated:
         user = request.user
         create_order = Order(user = user, full_name = full_name,email = email, shipping_address = shipping_address, amount_paid = amount_paid)
@@ -29,12 +31,31 @@ def process_order(request):
       else:
         create_order = Order( full_name = full_name,email = email, shipping_address = shipping_address, amount_paid = amount_paid)
         create_order.save()
-
+      #add order item
+      #get the order id
+        order_id = create_order.pk
+        for product in cart_products():
+          product_id = product.id
+          if product.is_sale:
+            price = product.sale_price
+          else:
+            price = product.price
+          for key, value in quantities().items():
+            if int(key) == product.id:
+              create_order_item = OrderItem(order_id=order_id, product_id=product_id, quantity=value, price=price, )
+              create_order_item.save()
+        #delete our cart
+        for key in list(request.session.keys()):
+          if key == "session_key":
+            del request.session[key]
         messages.success(request, "Order Placed!")
         return redirect ('home')
     else:
       messages.success(request, "Access Denied")
       return redirect ('home')
+    
+
+
 def billing_info(request):
   if request.POST:
     cart = Cart(request) # Lấy giỏ hàng từ session hiện tại
