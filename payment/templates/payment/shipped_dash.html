@@ -16,7 +16,26 @@
 
                     <br/><br/>
 <h3>Shipped Items </h3>
-{{orders}}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th scope="col">Order</th>
+            <th scope="col">Price</th>
+            <th scope="col">Customer Email</th>
+            <th scope="col">Date Shipped</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in orders %}
+            <tr>
+                <td><a href="{% url 'orders' item.id %}">{{ item.id }}</a></td>
+                <td>{{ item.amount_paid }}</td>
+                <td>{{ item.email }}</td>
+                <td>{{ item.date_shipped }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+  </table>
                     <br/><br/>
 
                 </div>
