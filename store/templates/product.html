@@ -1,92 +1,72 @@
-{% extends 'base.html' %}
+{% extends 'store/base.html' %}
 {% block content %}
-<div class="container">
-<br/>
-    <div class="card mb-3">
-      <div class="row g-0">
-        <div class="col-md-4">
-          <img src="{{product.image.url}}" class="img-fluid rounded-start" alt="...">
-        </div>
-        <div class="col-md-8">
-          <center class="card-body">
-            <h5 class="card-title">{{product.name}}</h5>
-            <p class="card-text">{{product.description}}</p>
-            {% if product.is_sale %}
-            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-<!--
-                  <div class="col mb-5">
-                      <div class="card h-100"> -->
-                          <!-- <div class="badge bg-light text-black position-absolute" style="top: 0.5rem; right: 0.5rem">Sale</div> -->
+<div class="container my-5">
+    <div class="card shadow-sm p-3">
+        <div class="row g-0">
+            <!-- Image -->
+            <div class="col-md-4 d-flex justify-content-center align-items-center bg-light p-3">
+                <img src="{{ product.image.url }}" class="img-fluid rounded" style="max-height:250px; object-fit:contain;" alt="{{ product.name }}">
+            </div>
 
-                          <!-- Product image-->
-                          <!-- <img class="card-img-top" src="{{product.image.url}}" alt="..." /> -->
-                          <!-- Product details-->
-                          <div class="card-body p-4">
-                              < class="text-center">
-                                  <!-- Product name-->
-                                  <!-- <h5 class="fw-bolder">Fancy Product {{ product.name }}</h5> -->
-                                  <!--Sale-->
-                                  <div class="d-flex justify-content-center small text-warning mb-2">
-                                      <div class="bi-star-fill"></div>
-                                      &nbsp;&nbsp;Sale!&nbsp;&nbsp;
-                                      <div class="bi-star-fill">
-                                      </div>
-                                  </div>
-                                  <!-- Product price-->
-                                  <s>${{ product.price }}</s>
-                                  &nbsp;
-                                  {{ product.sale_price}}
-              {% else %}
-            ${{ product.price }}
-            <br/> ID: {{ product.id }}
-            {% endif %}
-            <br></br>
-            <div class="row-justify-content-center">
-              <div class="col-md-2">Quantity:</div>
-              <div class="col-md-2">
-            <select class="form-select form-select-sm" id="qty-cart">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-            </select>
-          </div>
-        </div>
-            <br></br>
+            <!-- Details -->
+            <div class="col-md-8 p-4">
+                <h3 class="fw-bold">{{ product.name }}</h3>
+                <p class="text-muted">{{ product.description }}</p>
 
-            <a href="{%url 'home'%}" class="btn btn-secondary">Home</a>
-            <button type ="button" value = "{{ product.id }}"class="btn btn-secondary" id="add-cart">Add To Cart</button>
-          </center>
-          </div>
+                {% if product.is_sale %}
+                    <div class="mb-3">
+                        <span class="text-muted"><s>${{ product.price }}</s></span>
+                        <span class="fw-bold text-danger ms-2">${{ product.sale_price }}</span>
+                        <span class="badge bg-warning text-dark ms-2">Sale!</span>
+                    </div>
+                {% else %}
+                    <div class="fw-bold fs-5 mb-3">${{ product.price }}</div>
+                    <div class="text-muted mb-3">ID: {{ product.id }}</div>
+                {% endif %}
+
+                <!-- Quantity -->
+                <div class="mb-3 d-flex align-items-center gap-2">
+                    <label for="qty-cart" class="mb-0 fw-medium">Quantity:</label>
+                    <select id="qty-cart" class="form-select form-select-sm w-auto">
+                        {% for i in 1|add:0|to:5 %}
+                            <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex gap-2">
+                    <a href="{% url 'home' %}" class="btn btn-secondary">Home</a>
+                    <button type="button" value="{{ product.id }}" class="btn btn-primary" id="add-cart">
+                        <i class="fa-solid fa-cart-plus me-1"></i> Add To Cart
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 </div>
 
-<br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br>
 <script>
-  $(document).on('click', '#add-cart', function(e){
-    e.preventDefault(); // Ngăn chặn hành động mặc định của sự kiện click
+$(document).on('click', '#add-cart', function(e){
+    e.preventDefault();
 
     $.ajax({
-      type: 'POST', // Phương thức gửi yêu cầu là POST
-      url: "{% url 'cart_add' %}", // URL mà yêu cầu sẽ được gửi đến (đây là một biến template trong Django)
-      data: {
-        product_id: $('#add-cart').val(), // Dữ liệu được gửi đi, ở đây là giá trị của phần tử có id 'add-cart'
-        product_qty: $('#qty-cart option:selected').text(),
-        csrfmiddlewaretoken: '{{ csrf_token }}', // Token CSRF để bảo mật (được lấy từ template Django)
-        action: 'post' // Thông tin thêm để chỉ định hành động là 'post'
-    },
-        success: function(json){ // Hàm sẽ được gọi khi yêu cầu thành công
-            // console.log(json) // In ra console dữ liệu JSON trả về
-            document.getElementById("cart_quantity").
-            textContent = json.qty;
-          },
-        error: function(xhr, errmsg, err){ // Hàm sẽ được gọi khi có lỗi xảy ra
+        type: 'POST',
+        url: "{% url 'cart_add' %}",
+        data: {
+            product_id: $(this).val(),
+            product_qty: $('#qty-cart').val(),
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            action: 'post'
+        },
+        success: function(json){
+            document.getElementById("cart_quantity").textContent = json.qty;
+            alert("Added to cart!");
+        },
+        error: function(xhr, errmsg, err){
+            alert("Something went wrong!");
         }
     });
 });
-
 </script>
 {% endblock %}
